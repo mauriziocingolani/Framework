@@ -1,0 +1,50 @@
+/* CSS framework
+@version 1.0 */
+
+/* body */
+body {
+    overflow: hidden !important;//Impedisce lo scroll in basso mentre è visibile il preloader
+}
+
+/* Preloader */
+
+#preloader {
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-color:white; /* change if the mask should have another color then white */
+    z-index:99999; /* makes sure it stays on top */
+}
+
+#status {
+    width:200px;
+    height:200px;
+    position:absolute;
+    left:50%; /* centers the loading animation horizontally one the screen */
+    top:50%; /* centers the loading animation vertically one the screen */
+    background-image:url(../images/loading.gif); /* path to your loading animation */
+    background-repeat:no-repeat;
+    background-position:center;
+    margin:-100px 0 0 -100px; /* is width and height divided by two */
+}
+
+/* Paragrafo errore server */
+p.server_error {
+    color: red;
+    font-style: italic;
+}
+blockquote.server_error {
+    color:gray;
+    font-size: 10px;
+    font-style: italic;
+    quotes: "\201C" "\201D" "\2018" "\2019";
+    text-align: justify;
+    &:before {
+        content: open-quote;
+    }
+    &:after {
+        content: close-quote;
+    }
+}
