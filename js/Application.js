@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.6
+ * @version 1.0.7
  */
 
 
@@ -232,7 +232,7 @@ Field.prototype.validate = function(value) {
         return this.field.attr('data-invalid-message');
     }
     if (this.date) {
-        if (!this.validateDate(value, this.field.datepicker('getDate')))
+        if (!this.validateDate(value, this.field.datepicker('getDate'), this.required))
             return this.field.attr('data-invalid-message');
     }
     if (this.time && value.length > 0 && !this.time.test(value)) {
@@ -287,7 +287,7 @@ Field.prototype.setValue = function(value) {
 /**
  * Verifica che il valore contenuto in un campo di tipo 'date' sia una data valida.
  * Il primo parametro è la stringa restituita dal metodo .val() del campo, mentre
- * il secondo è l'oggetto Date resittuito dal metodo $.datepicker('getDate').
+ * il secondo è l'oggetto Date restituito dal metodo $.datepicker('getDate').
  * Anzitutto viene confrontata la stringa con la regex che rappresenta una data in formato
  * 'gg/mm/aaaa'; se il formato è valido viene costruito un oggetto Date a partire dalla stringa,
  * quindi viene confrontato con l'oggetto passato come secondo parametro. Se i due oggetti
@@ -296,7 +296,9 @@ Field.prototype.setValue = function(value) {
  * @param {Date} date Oggetto Date selezionato tramite datepicker.
  * @returns {Boolean} True se la data è corretta e valida, false altrimenti
  */
-Field.prototype.validateDate = function(dateString, date) {
+Field.prototype.validateDate = function(dateString, date, required) {
+    if ((dateString == null || dateString === '') && (required == undefined || required === false))
+        return true;
     if (!/^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/g.test(dateString.toString()))
         return false;
     var day = dateString.substring(0, 2);
