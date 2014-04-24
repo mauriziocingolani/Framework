@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.7
+ * @version 1.0.8
  */
 
 
@@ -48,6 +48,8 @@ var Application = {
         if (callback !== undefined) {
             callback();
         }
+        /* Tooltips */
+        $("[data-toggle='tooltip']").tooltip();
         /* Via preloader */
         $('#status').fadeOut(1500);
         $('#preloader').delay(500).fadeOut(1000);
