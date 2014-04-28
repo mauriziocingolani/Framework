@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.9
+ * @version 1.0.10
  */
 
 
@@ -409,11 +409,11 @@ var Message = {
      * @deprecated since 1.0.6
      */
     show: function(div, message, isError, ajaxError, afterFinishCallback) {
-        var msg = typeof div === 'string' ? $(div) : div;
+        var msg = typeof div === 'string' ? $('#' + div) : div;
         msg.html(message + (ajaxError ? ' Error ' + ajaxError.status + ' ' + ajaxError.statusText : ''));
-        div.addClass(isError ? 'alert-danger' : 'alert-success');
-        div.removeClass(isError ? 'alert-success' : 'alert-danger');
-        div.fadeIn('slow', function() {
+        msg.addClass(isError ? 'alert-danger' : 'alert-success');
+        msg.removeClass(isError ? 'alert-success' : 'alert-danger');
+        msg.fadeIn('slow', function() {
             if (afterFinishCallback)
                 afterFinishCallback();
         });
@@ -428,11 +428,11 @@ var Message = {
      * @param {function} afterFinishCallback Funzione da eseguire dopo aver mostrato il messaggio di errore
      */
     showAjaxError: function(div, xhr, afterFinishCallback) {
-        var msg = typeof div === 'string' ? $(div) : div;
+        var msg = typeof div === 'string' ? $('#' + div) : div;
         msg.html('ERRORE AJAX. Error ' + xhr.status + ' ' + xhr.statusText + (xhr.responseText.length > 0 ? ' : <em>' + xhr.responseText + '</em>' : ''));
-        div.addClass('alert-danger');
-        div.removeClass('alert-success');
-        div.fadeIn('slow', function() {
+        msg.addClass('alert-danger');
+        msg.removeClass('alert-success');
+        msg.fadeIn('slow', function() {
             if (afterFinishCallback)
                 afterFinishCallback();
         });
@@ -447,11 +447,11 @@ var Message = {
      * @param {function} errorCallback Callback in caso di errore
      */
     showOverJson: function(div, json, successCallback, errorCallback) {
-        var msg = typeof div === 'string' ? $(div) : div;
+        var msg = typeof div === 'string' ? $('#' + div) : div;
         msg.html(json.message);
-        div.addClass(json.error ? 'alert-danger' : 'alert-success');
-        div.removeClass(json.error ? 'alert-success' : 'alert-danger');
-        div.fadeIn('slow', function() {
+        msg.addClass(json.error ? 'alert-danger' : 'alert-success');
+        msg.removeClass(json.error ? 'alert-success' : 'alert-danger');
+        msg.fadeIn('slow', function() {
             if (!json.error && successCallback) {
                 successCallback();
             } else if (json.error && errorCallback) {

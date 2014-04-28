@@ -5,7 +5,7 @@
  * (tuttavia ancora astratta) dell'interfaccia DatabaseObject.
  *
  * @author Maurizio Cingolani
- * @version 1.0.4
+ * @version 1.0.5
  */
 abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseObject {
 
@@ -70,7 +70,7 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
             }
             return $data;
         } catch (CDbException $ex) {
-            return $ex->getMessage();
+            return $ex;
         }
     }
 
@@ -85,7 +85,7 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
         try {
             return $model->deleteByPk($pk);
         } catch (CDbException $ex) {
-            return $ex->getMessage();
+            return $ex;
         }
     }
 
@@ -100,7 +100,7 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
         try {
             return $model->findByPk($pk);
         } catch (CDbException $ex) {
-            return $ex->getMessage();
+            return $ex;
         }
     }
 
