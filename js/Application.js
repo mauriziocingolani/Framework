@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.8
+ * @version 1.0.9
  */
 
 
@@ -69,8 +69,9 @@ var Application = {
 var Form = function(formName, validateOnChange) {
     this.name = formName;
     var fields = {};
+    var form = this;
     $('#' + formName + ' .form-control').each(function() {
-        fields[$(this).attr('id')] = new Field($(this), validateOnChange);
+        fields[$(this).attr('id')] = new Field(form, $(this), validateOnChange);
     });
     this.fields = fields;
     this.message = $('#' + formName + '_message');
@@ -81,15 +82,9 @@ var Form = function(formName, validateOnChange) {
  */
 Form.prototype.validate = function() {
     var valid = true;
+    var validation;
     $.each(this.fields, $.proxy(function(key, value) {
-        var validation;
-        //Ai campi con regola 'compare' bisogna passare il valore del campo
-        //con cui fare il confronto.
-        if (value.compare) {
-            validation = value.validate(this.getFieldValue(value.compare));
-        } else {
-            validation = value.validate();
-        }
+        validation = value.validate();
         value.setErrorStatus(validation);
         if (validation !== true)
             valid = false;
@@ -97,13 +92,22 @@ Form.prototype.validate = function() {
     return valid;
 }
 /**
+ * Cerca e restituisce il campo indicato nella lista dei campi della form.
+ * @param {string} fieldName
+ * @returns {Field} Oggetto field corrispondente 
+ */
+Form.prototype.getField = function(fieldName) {
+    return this.fields[this.name + '_' + fieldName];
+}
+
+/**
  * Restituisce il valore contenuto nel campo, usando indistintamente
  * il metodo .val() di jQuery (tramite il metodo getValue() dell'oggetto FIeld).
  * @param {string} fieldName Nome del campo
  * @returns {string} Valore contenuto nel campo
  */
 Form.prototype.getFieldValue = function(fieldName) {
-    return this.fields[this.name + '_' + fieldName].getValue();
+    return this.getField(fieldName).getValue();
 }
 /**
  * Imposta il valore contenuto nel campo, usando indistintamente
@@ -113,7 +117,7 @@ Form.prototype.getFieldValue = function(fieldName) {
  * @returns {string} Valore contenuto nel campo
  */
 Form.prototype.setFieldValue = function(fieldName, value) {
-    this.fields[this.name + '_' + fieldName].setValue(value);
+    this.getField(fieldName).setValue(value);
 }
 
 /**
@@ -147,11 +151,12 @@ Form.prototype.setFieldEvent = function(fieldName, event, callable) {
  * 
  * Se richiesto dal parametro validateOnChange associa la funzione {@link validate} all'evento 'change' del campo.
  * 
+ * @param {object} form Oggetto Form cui il campo appartiene (usata solo per campi 'compare')
  * @param {string} field Tag del campo (restituito da selettore jQuery)
  * @param {boolean} validateOnChange True per impostare la validazione automatica a ogni modifica
  * @returns {Field} Oggetto FIeld
  */
-var Field = function(field, validateOnChange) {
+var Field = function(form, field, validateOnChange) {
     this.field = field;
     this.id = field.attr('id');
     this.div = $('#' + field.attr('id') + '_div');
@@ -206,7 +211,9 @@ var Field = function(field, validateOnChange) {
         this.maxMessage = this.field.attr('data-max-message');
     }
     if (this.field.attr('data-compare')) {
+        this.form = form;
         this.compare = this.field.attr('data-compare');
+        this.compareOperator = this.field.attr('data-compare-operator');
         this.compareMessage = this.field.attr('data-compare-message');
     }
     if (validateOnChange) {
@@ -247,8 +254,30 @@ Field.prototype.validate = function(value) {
         if (this.max && number > this.max)
             return this.maxMessage || this.field.attr('data-invalid-message');
     }
-    if (this.compare && value != this.getValue()) {
-        return this.compareMessage;
+    if (this.compare) {
+        if (this.date) {
+            value = this.field.datepicker('getDate');//valore del campo
+            if (value) {
+                var compare = this.form.getField(this.compare).field.datepicker('getDate');//valore del campo di confronto
+                switch (this.compareOperator) {
+                    case '=':
+                    case '==':
+                        return value == compare ? true : this.compareMessage;
+                    case '!=':
+                        return value != compare ? true : this.compareMessage;
+                    case '>':
+                        return value > compare ? true : this.compareMessage;
+                    case '>=':
+                        return value >= compare ? true : this.compareMessage;
+                    case '<':
+                        return value < compare ? true : this.compareMessage;
+                    case '<=':
+                        return value <= compare ? true : this.compareMessage;
+                }
+                return this.compareMessage;
+            }
+        }
+        return true;
     }
     return true;
 }

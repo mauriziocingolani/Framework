@@ -4,7 +4,7 @@
  * 
  *
  * @author Maurizio Cingolani
- * @version 1.0.5
+ * @version 1.0.7
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -17,9 +17,13 @@ class Bootstrap extends CApplicationComponent {
      * @return string Codice html del pulsante
      */
     public static function AnchorButton($text, $url, array $htmlOptions = null, array $classes = null) {
-        $classes = array_map(function($e) {
-            return "btn-$e";
-        }, $classes);
+        if (is_array($classes)) :
+            $classes = array_map(function($e) {
+                return "btn-$e";
+            }, $classes);
+        else :
+            $classes = array();
+        endif;
         $htmlOptions = self::AddClasses(array_merge(array('btn'), $classes), $htmlOptions);
         $htmlOptions['role'] = 'button';
         return Html::link($text, $url, $htmlOptions);
@@ -35,9 +39,13 @@ class Bootstrap extends CApplicationComponent {
      * @return string Codice html del pulsante
      */
     public static function Button($type, $text, array $htmlOptions = null, array $classes = null) {
-        $classes = array_map(function($e) {
-            return "btn-$e";
-        }, $classes);
+        if (is_array($classes)) :
+            $classes = array_map(function($e) {
+                return "btn-$e";
+            }, $classes);
+        else :
+            $classes = array();
+        endif;
         $htmlOptions = self::AddClasses(array_merge(array('btn'), $classes), $htmlOptions);
         $htmlOptions['type'] = $type;
         return Html::tag('button', $htmlOptions, $text, true);
@@ -254,9 +262,10 @@ class Bootstrap extends CApplicationComponent {
      * <li>
      * </ul>      
      * 
-     * <b>CNumberValidator</b>
+     * <b>CCompareValidator</b>
      * <ul>
      * <li>data-compare="{$validator->compareAttribute}"</li>
+     * <li>data-compare-operator="{$validator->operator}"</li>
      * <li>data-compare-message="{$validator->message}"</li>
      * </ul>
      * 
@@ -312,6 +321,7 @@ class Bootstrap extends CApplicationComponent {
                 endif;
             elseif ($validator instanceof CCompareValidator) :
                 $htmlOptions['data-compare'] = $validator->compareAttribute;
+                $htmlOptions['data-compare-operator'] = $validator->operator;
                 $htmlOptions['data-compare-message'] = Html::decode($validator->message);
             else :
                 throw new CException(__METHOD__ . ': validator ' . get_class($validator) . ' not supported.');
