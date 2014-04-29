@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.10
+ * @version 1.0.11
  */
 
 
@@ -406,7 +406,6 @@ var Message = {
      * @param {type} isError True per indicare errore
      * @param {type} ajaxError Messaggio di errore restituito dalla chiamata Ajax
      * @param {type} afterFinishCallback Funzinoe da eseguire dopo che il messaggio è comparso
-     * @deprecated since 1.0.6
      */
     show: function(div, message, isError, ajaxError, afterFinishCallback) {
         var msg = typeof div === 'string' ? $('#' + div) : div;
