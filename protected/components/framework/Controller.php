@@ -5,7 +5,7 @@
  * Espone metodi per la gestione dei files css, dei files js e dei breadcrumbs.
  *
  * @author Maurizio Cingolani
- * @version 1.0.5
+ * @version 1.0.6
  */
 class Controller extends CController {
 
@@ -98,7 +98,7 @@ class Controller extends CController {
         if ($css === null)
             return;
         if (is_array($css)) :
-            array_merge($this->_css, $css);
+            $this->_css = array_merge($this->_css, $css);
         elseif (is_string($css)):
             $this->_css[] = $css;
         endif;
@@ -188,7 +188,7 @@ class Controller extends CController {
      */
     public function addJs($js) {
         if (is_array($js)):
-            array_merge($this->_js, $js);
+            $this->_js = array_merge($this->_js, $js);
         else:
             $this->_js[] = $js;
         endif;
