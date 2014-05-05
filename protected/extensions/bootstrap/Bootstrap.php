@@ -4,7 +4,7 @@
  * 
  *
  * @author Maurizio Cingolani
- * @version 1.0.7
+ * @version 1.0.8
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -250,6 +250,18 @@ class Bootstrap extends CApplicationComponent {
      * <li>data-invalid-message="{$validator->message}"</li>
      * </ul>
      * 
+     * <b>CDateValidator</b>
+     * <ul>
+     * <li>data-date="true"</li>
+     * <li>data-invalid-message="{$validator->message}"</li>
+     * </ul>
+     * 
+     * <b>TimeValidator</b>
+     * <ul>
+     * <li>data-date="{$validator->pattern}"</li>
+     * <li>data-invalid-message="{$validator->message}"</li>
+     * </ul>
+     * 
      * <b>CNumberValidator</b>
      * <ul>
      * <li>data-number="int" oppure "float" in base al valore di {$validation->integerOnly}</li>
@@ -267,6 +279,26 @@ class Bootstrap extends CApplicationComponent {
      * <li>data-compare="{$validator->compareAttribute}"</li>
      * <li>data-compare-operator="{$validator->operator}"</li>
      * <li>data-compare-message="{$validator->message}"</li>
+     * </ul>
+     * 
+     * <b>UpperCaseValidator</b>
+     * <ul>
+     * <li>data-uppercase="true"</li>
+     * </ul>
+     * 
+     * <b>LowerCaseValidator</b>
+     * <ul>
+     * <li>data-lowercase="true"</li>
+     * </ul>
+     * 
+     * <b>ProperCaseValidator</b>
+     * <ul>
+     * <li>data-propercase="true"</li>
+     * </ul>
+     * 
+     * <b>TrimValidator</b>
+     * <ul>
+     * <li>data-trim="true"</li>
      * </ul>
      * 
      * @param array $validators Regole di validazione per l'attributo del modello della form
@@ -323,6 +355,14 @@ class Bootstrap extends CApplicationComponent {
                 $htmlOptions['data-compare'] = $validator->compareAttribute;
                 $htmlOptions['data-compare-operator'] = $validator->operator;
                 $htmlOptions['data-compare-message'] = Html::decode($validator->message);
+            elseif ($validator instanceof UpperCaseValidator) :
+                $htmlOptions['data-uppercase'] = 'true';
+            elseif ($validator instanceof LowerCaseValidator) :
+                $htmlOptions['data-lowercase'] = 'true';
+            elseif ($validator instanceof ProperCaseValidator) :
+                $htmlOptions['data-propercase'] = 'true';
+            elseif ($validator instanceof TrimValidator) :
+                $htmlOptions['data-trim'] = 'true';
             else :
                 throw new CException(__METHOD__ . ': validator ' . get_class($validator) . ' not supported.');
             endif;

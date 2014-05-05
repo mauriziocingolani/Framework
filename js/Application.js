@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.11
+ * @version 1.0.12
  */
 
 
@@ -215,6 +215,26 @@ var Field = function(form, field, validateOnChange) {
         this.compare = this.field.attr('data-compare');
         this.compareOperator = this.field.attr('data-compare-operator');
         this.compareMessage = this.field.attr('data-compare-message');
+    }
+    if (this.field.attr('data-uppercase') || this.field.attr('data-lowercase') || this.field.attr('data-propercase') || this.field.attr('data-trim')) {
+        this.field.on('blur', $.proxy(function(event) {
+            var t = $('#' + event.target.id);
+            var value = t.val();
+            if (this.field.attr('data-uppercase')) {
+                value = value.toUpperCase();
+            }
+            if (this.field.attr('data-lowercase')) {
+                value = value.toLowerCase();
+            }
+            if (this.field.attr('data-propercase')) {
+                value = value.toProperCase();
+            }
+            if (this.field.attr('data-trim')) {
+                value = value.trim();
+            }
+            t.val(value);
+            t = null;
+        }, this));
     }
     if (validateOnChange) {
         field.on('change', $.proxy(function() {
@@ -496,3 +516,22 @@ var ModalDialog = {
         this.div.modal('hide');
     }
 }
+
+String.prototype.toProperCase = function() {
+    var smallWords = /^(zjfhjd?\.?|via)$/i;
+
+    return this.replace(/[A-Za-z0-9\u00C0-\u00FF]+[^\s-']*/g, function(match, index, title) {
+        if (index > 0 && index + match.length !== title.length &&
+                match.search(smallWords) > -1 && title.charAt(index - 2) !== ":" &&
+                (title.charAt(index + match.length) !== '-' || title.charAt(index - 1) === '-') &&
+                title.charAt(index - 1).search(/[^\s-]/) < 0) {
+            return match.toLowerCase();
+        }
+
+        if (match.substr(1).search(/[A-Z]|\../) > -1) {
+            return match;
+        }
+
+        return match.charAt(0).toUpperCase() + match.substr(1);
+    });
+};

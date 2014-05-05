@@ -6,6 +6,7 @@
  * separatore dei decimali.
  *
  * @author Maurizio Cingolani
+ * @version 1.0.1
  */
 class NumberValidator extends CNumberValidator {
 
