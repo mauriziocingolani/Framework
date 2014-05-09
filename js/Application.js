@@ -2,9 +2,8 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.12
+ * @version 1.0.13
  */
-
 
 /**
  * Espone un unico metodo start() per inizializzare alcuni parametri
@@ -517,6 +516,7 @@ var ModalDialog = {
     }
 }
 
+/* Metodi per le stringhe */
 String.prototype.toProperCase = function() {
     var smallWords = /^(zjfhjd?\.?|via)$/i;
 
@@ -535,3 +535,6 @@ String.prototype.toProperCase = function() {
         return match.charAt(0).toUpperCase() + match.substr(1);
     });
 };
+String.prototype.textBeforeFirstUnderscore = function() {
+    return this.substring(0, this.indexOf('_'));
+}
