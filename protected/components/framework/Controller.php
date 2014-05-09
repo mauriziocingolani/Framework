@@ -5,7 +5,7 @@
  * Espone metodi per la gestione dei files css, dei files js e dei breadcrumbs.
  *
  * @author Maurizio Cingolani
- * @version 1.0.6
+ * @version 1.0.7
  */
 class Controller extends CController {
 
@@ -213,7 +213,7 @@ class Controller extends CController {
             endforeach;
         endif;
         foreach ($this->_js as $js) :
-            $cs->registerScriptFile("/js/$js.js", CClientScript::POS_END);
+            $cs->registerScriptFile(substr($file, 0, 2) == '//' || substr($file, 0, 8) == 'https://' ? $file : "/js/$js.js", CClientScript::POS_END);
         endforeach;
     }
 
