@@ -51,6 +51,12 @@ class Bootstrap extends CApplicationComponent {
         return Html::tag('button', $htmlOptions, $text, true);
     }
 
+    public static function CheckBox(CModel $model, $attribute, array $htmlOptions = null) {
+        $htmlOptions = self::AddClasses();
+        $field = self::InputField('checkbox', $model, $attribute);
+        return $field;
+    }
+
     /**
      * Crea il tag <input> con le opportune classi Bootstrap e con icona 'freccia giù' sulla destra.
      *  Per il resto è un semplice wrapper per il metodo {@link Html::activeDropDownList}.
@@ -382,13 +388,19 @@ class Bootstrap extends CApplicationComponent {
      * @return string Tag html
      */
     private static function InputField($type, CModel $model, $attribute, array $htmlOptions = null) {
-        $htmlOptions = self::AddClasses(array('form-control'), $htmlOptions);
+        if ($type == 'checkbox') :
+            $htmlOptions = self::AddClasses(array('checkbox'), $htmlOptions);
+        else :
+            $htmlOptions = self::AddClasses(array('form-control'), $htmlOptions);
+        endif;
         self::CreateDataProps($model->getValidators($attribute), $htmlOptions);
         /* Selezione del tipo di input */
         if ($type === 'text') :
             return Html::activeTextField($model, $attribute, $htmlOptions);
         elseif ($type === 'password') :
             return Html::activePasswordField($model, $attribute, $htmlOptions);
+        elseif ($type === 'checkbox') :
+            return Html::activeCheckBox($model, $attribute, $htmlOptions);
         endif;
     }
 

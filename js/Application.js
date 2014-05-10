@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.13
+ * @version 1.0.14
  */
 
 /**
@@ -69,7 +69,7 @@ var Form = function(formName, validateOnChange) {
     this.name = formName;
     var fields = {};
     var form = this;
-    $('#' + formName + ' .form-control').each(function() {
+    $('#' + formName + ' .form-control, #' + formName + ' .checkbox').each(function() {
         fields[$(this).attr('id')] = new Field(form, $(this), validateOnChange);
     });
     this.fields = fields;
@@ -319,12 +319,17 @@ Field.prototype.setErrorStatus = function(message) {
     }
 }
 /**
- * Restituisce il valore contenuto nel campo usando indistintamente
- * il metodo .val().
- * @returns {string} Valore contenuto nel campo
+ * Restituisce il valore contenuto nel campo usando il metodo .val(), a meno che il campo non
+ * è una checkbox. In questo caso viene verificata la presenza del pseudo-selettore :checked
+ * e restituito 1 oppure 0.
+ * @returns {mixed} Valore contenuto nel campo
  */
 Field.prototype.getValue = function() {
-    return this.field.val();
+    if (this.field.attr('type') == 'checkbox') {
+        return this.field.is(':checked') ? 1 : 0;
+    } else {
+        return this.field.val();
+    }
 }
 /**
  * Imposta il valore contenuto nel campo usando indistintamente
