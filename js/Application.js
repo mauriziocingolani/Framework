@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.14
+ * @version 1.0.15
  */
 
 /**
@@ -49,10 +49,30 @@ var Application = {
         }
         /* Tooltips */
         $("[data-toggle='tooltip']").tooltip();
+        /* Pulsanti scelta file */
+        $(document)
+                .on('change', '.btn-file :file', function() {
+                    var input = $(this);
+                    input.trigger('fileselect', [input[0].files[0]]);
+                });
         /* Via preloader */
         $('#status').fadeOut(1500);
         $('#preloader').delay(500).fadeOut(1000);
         $('body').delay(1000).css({'overflow': 'visible'});
+    },
+    noDocumentDragAndDrop: function() {
+        $(document).on('dragenter', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        $(document).on('dragover', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
+        $(document).on('drop', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+        });
     }
 }
 /**
@@ -63,13 +83,15 @@ var Application = {
  * {@link message} con l'elemento di id '#[nome form]_message'.
  * @param {string} formName Nome della form e prefisso dei campi (default: nome del modello php)
  * @param {boolean} validateOnChange True per validare i campi dopo ogni modifica
+ * @param {object} Eventuale lista di parametri da passare alla form
  * @returns {Form} Oggetto Form
  */
-var Form = function(formName, validateOnChange) {
+var Form = function(formName, validateOnChange, options) {
     this.name = formName;
+    this.options = options;
     var fields = {};
     var form = this;
-    $('#' + formName + ' .form-control, #' + formName + ' .checkbox').each(function() {
+    $('#' + formName + ' .form-control, #' + formName + ' .form-control-static, #' + formName + ' .checkbox').each(function() {
         fields[$(this).attr('id')] = new Field(form, $(this), validateOnChange);
     });
     this.fields = fields;
@@ -234,6 +256,9 @@ var Field = function(form, field, validateOnChange) {
             t.val(value);
             t = null;
         }, this));
+    }
+    if (this.field.attr('data-sn-editor')) {
+        this.sn = this.field.summernote(form.options.sn || null);
     }
     if (validateOnChange) {
         field.on('change', $.proxy(function() {
@@ -519,6 +544,136 @@ var ModalDialog = {
     hide: function() {
         this.div.modal('hide');
     }
+}
+
+/**
+ * Gestisce le funzionalità di un'area per drag and drop.
+ * 
+ * Parametri utilizzabili (ultimo argomento):
+ * <ul>
+ * <li>path: percorso della cartella nella quale verrà salvata l'immagine uploadata (es. '/pictures' per salvare in '/images/pictures)</li>
+ * <li>dialogMessage: testo da mostrare nel corpo della dialog modale</li>
+ * <li>beforeTransferStart: eventuale callback da eseguire immediatamente prima della chiamata Ajax</li>
+ * <li>message: id oppure oggetto jQuery del messaggio di errore (da passare alle callback seguenti)
+ * <li>onSuccess: callback da eseguire in caso di sucesso (dopo aver fatto scomparire la dialog modale e aver impostato
+ *   il src dell'immagine</li>
+ * <li>error: callback da eseguire in caso di errore (dopo aver fatto scomparire la dialog modale)</li>
+ * </ul>
+ * 
+ * @param {mixed} div Oggetto jQuery dell'area (oppure id)
+ * @param {string} controller Nome del controller
+ * @param {string} action Nome dell'azione che gestirà il trasferimento del file
+ * @param {object} params Parametri 
+ */
+var PictureDragAndDropHandler = function(div, controller, action, params) {
+    // argomenti
+    this.div = typeof div == 'string' ? $('#' + div) : div;
+    this.controller = controller;
+    this.action = action;
+    this.params = params;
+    // componenti
+    this.span = $('#' + div.attr('id') + '_span');
+    this.img = $('#' + div.attr('id') + '_img');
+    this.clear = $('#' + div.attr('id') + '_clear');
+    this.clear.click($.proxy(function() {
+        this.img.attr('src', null);
+        this.img.hide();
+        this.span.show();
+        this.clear.hide();
+    }, this));
+    $('#' + div.attr('id') + ' .btn-file :file').on('fileselect', $.proxy(function(event, file) {
+        this.transfer(file);
+    }, this));
+    if (params.message)
+        this.message = typeof params.message == 'string' ? $('#' + params.message) : params.message;
+    this.initDnd();
+}
+/**
+ * Imposta gli event handlers per le operazioni di drag e drop.
+ * Il drag assegna (e poi toglie) la classe 'drop' alla div principale, mentre il 
+ * drop recupera i dati relativi al file droppato e li passa al metodo transfer().
+ */
+PictureDragAndDropHandler.prototype.initDnd = function() {
+    this.div.on('dragenter', $.proxy(function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.div.addClass('drop');
+    }, this));
+    this.div.on('dragleave', $.proxy(function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        this.div.removeClass('drop');
+    }, this));
+    this.div.on('dragover', $.proxy(function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }, this));
+    this.div.on('drop', $.proxy(function(e) {
+        this.div.removeClass('drop');
+        e.preventDefault();
+        var files = e.originalEvent.dataTransfer.files;
+        if (files.length == 1)
+            this.transfer(files[0]);
+    }, this));
+}
+/**
+ * Esegue il caricamento del file sul server via Ajax.
+ * @param {object} file File droppato
+ */
+PictureDragAndDropHandler.prototype.transfer = function(file) {
+    var fd = new FormData;
+    fd.append('file', file);
+    if (this.params.path)
+        fd.append('path', this.params.path);
+    ModalDialog.show('<div id="progressbar"></div>', this.params.dialogMessage ? this.params.dialogMessage : 'Caricamento immagine');
+    if (this.params.beforeTransferStart)
+        this.params.beforeTransferStart();
+    var progressBar = $('#progressbar');
+    progressBar.progressbar();
+    $.ajax({
+        xhr: function() {
+            var xhrobj = $.ajaxSettings.xhr();
+            if (xhrobj.upload) {
+                xhrobj.upload.addEventListener('progress', function(event) {
+                    var percent = 0;
+                    var position = event.loaded || event.position;
+                    var total = event.total;
+                    if (event.lengthComputable)
+                        percent = Math.ceil(position / total * 100);
+                    progressBar.progressbar('value', percent);
+                }, false);
+            }
+            return xhrobj;
+        },
+        url: '/' + this.controller + '/' + this.action,
+        type: 'POST',
+        contentType: false,
+        processData: false,
+        cache: false,
+        data: fd,
+        dataType: 'json',
+        success: $.proxy(function(json) {
+            this.img.attr('src', json.data);
+            this.img.show();
+            this.span.hide();
+            this.clear.show();
+            ModalDialog.hide();
+            if (this.params.onSuccess)
+                this.params.onSuccess(json, this.message);
+        }, this),
+        error: $.proxy(function(error) {
+            ModalDialog.hide();
+            if (this.params.error)
+                this.params.error(error, this.message);
+        }, this)
+    });
+}
+/**
+ * Restituisce il contenuto di src dell'immagine droppata.
+ * @returns {string} Percorso completo dell'immagine.
+ */
+PictureDragAndDropHandler.prototype.getImgPath = function() {
+    return this.img.attr('src');
 }
 
 /* Metodi per le stringhe */

@@ -4,7 +4,7 @@
  * 
  *
  * @author Maurizio Cingolani
- * @version 1.0.8
+ * @version 1.0.9
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -106,6 +106,18 @@ class Bootstrap extends CApplicationComponent {
         return self::InputField('text', $model, $attribute, $htmlOptions);
     }
 
+    public static function Editor(CModel $model, $attribute) {
+        $tag = Html::openTag('div', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
+                    'class' => 'form-control-static summernote',
+                    'data-sn-editor' => 'true',
+        ));
+        if ($model->{$attribute})
+            $tag.=Html::decode($model->{$attribute});
+        $tag.=Html::closeTag('div');
+        return Html::decode($tag);
+    }
+
     /** Crea un input di tipo text con le opportune classi Bootstrap e con gli attributi data-... per la validazione.
      * Wrapper per il metodo {@link Bootstrap::InputField}.
      * 
@@ -178,6 +190,36 @@ class Bootstrap extends CApplicationComponent {
      */
     public static function PasswordField(CModel $model, $attribute, array $htmlOptions = null) {
         return self::InputField('password', $model, $attribute, $htmlOptions);
+    }
+
+    public static function PictureDiv(CModel $model, $attribute, array $htmlOptions = null, array $options = array()) {
+        $tag = Html::openTag('div', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
+                    'class' => 'picture_dnd_handler form-control-static',
+                    'data-picure-dnd' => 'true',
+        ));
+        $tag.=Html::tag('span', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_span',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'none' : 'block') . ';',
+                        ), isset($options['dropMessage']) ? $options['dropMessage'] : 'Trascina qui');
+        $tag.=Html::tag('img', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_img',
+                    'class' => 'img-responsive img-thumbnail',
+                    'alt' => '',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';',
+                    'src' => $model->{$attribute},
+        ));
+        $tag.=Html::openTag('p');
+        $tag.=Html::tag('span', array('class'=>'btn btn-xs btn-primary btn-file'), 'Scegli... <input type="file">');
+        $tag.=self::Button('button', 'Pulisci', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
+                    'data-toggle' => 'tooltip',
+                    'title' => 'Clicca per rimuovere la foto attuale',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';'
+                        ), array('danger', 'xs'));
+        $tag.=Html::closeTag('p');
+        $tag.=Html::closeTag('div');
+        return Html::decode($tag);
     }
 
     /**
