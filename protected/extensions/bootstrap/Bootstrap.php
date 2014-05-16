@@ -1,10 +1,8 @@
 <?php
 
 /**
- * 
- *
  * @author Maurizio Cingolani
- * @version 1.0.9
+ * @version 1.0.10
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -106,12 +104,19 @@ class Bootstrap extends CApplicationComponent {
         return self::InputField('text', $model, $attribute, $htmlOptions);
     }
 
+    /**
+     * Crea una div con classe 'summernote' per consentire l'inizializzazione via js.
+     * Quindi assegna le opportune classi Bootstrap e con gli attributi data-... per la validazione.
+     * @param CModel $model Modello della form
+     * @param type $attribute Attributo del modello della form
+     * @return string Tag html
+     */
     public static function Editor(CModel $model, $attribute) {
-        $tag = Html::openTag('div', array(
-                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
-                    'class' => 'form-control-static summernote',
-                    'data-sn-editor' => 'true',
-        ));
+        $htmlOptions = self::AddClasses(array('form-control-static', 'summernote'));
+        self::CreateDataProps($model->getValidators($attribute), $htmlOptions);
+        $htmlOptions['id'] = get_class($model) . ($attribute ? '_' . $attribute : '' );
+        $htmlOptions['data-sn-editor'] = 'true';
+        $tag = Html::openTag('div', $htmlOptions);
         if ($model->{$attribute})
             $tag.=Html::decode($model->{$attribute});
         $tag.=Html::closeTag('div');
@@ -192,6 +197,23 @@ class Bootstrap extends CApplicationComponent {
         return self::InputField('password', $model, $attribute, $htmlOptions);
     }
 
+    /**
+     * Crea una div per il drag and drop di immagini (classe 'picture_dnd_handler') con tre componenti interni:
+     * <ul>
+     * <li>span (id '{nome modello}_{nome attributo}_span') : contiene il testo 'Trascina qui' (configurabile tramite
+     *   l'opzione 'dropMessage'). Visibile sono se non è stata droppata l'immagine.</li>
+     * <li>img (id '{nome modello}_{nome attributo}_img') : immagine droppata. Gli attributi 'class' e 'alt' sono
+     * configurabili tramite le opzioni 'imgClass' e 'imgAlt'.</li>
+     * <li>pulsanti: pulizia della foto (id '{nome modello}_{nome attributo}_clear') e caricamento del file tramite
+     * finestra di scelta (classe 'btn-file').
+     * </ul>
+     * 
+     * @param CModel $model Modello della form
+     * @param type $attribute Attributo del modello della form
+     * @param array $htmlOptions Opzioni del tag html principale
+     * @param array $options Opzioni del controllo
+     * @return string Tag html
+     */
     public static function PictureDiv(CModel $model, $attribute, array $htmlOptions = null, array $options = array()) {
         $tag = Html::openTag('div', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
@@ -204,13 +226,13 @@ class Bootstrap extends CApplicationComponent {
                         ), isset($options['dropMessage']) ? $options['dropMessage'] : 'Trascina qui');
         $tag.=Html::tag('img', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_img',
-                    'class' => 'img-responsive img-thumbnail',
-                    'alt' => '',
+                    'class' => isset($options['imgClass']) ? $options['imgClass'] : 'img-responsive img-thumbnail',
+                    'alt' => isset($options['imgAlt']) ? $options['imgAlt'] : '',
                     'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';',
                     'src' => $model->{$attribute},
         ));
         $tag.=Html::openTag('p');
-        $tag.=Html::tag('span', array('class'=>'btn btn-xs btn-primary btn-file'), 'Scegli... <input type="file">');
+        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), 'Scegli... <input type="file">');
         $tag.=self::Button('button', 'Pulisci', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
                     'data-toggle' => 'tooltip',

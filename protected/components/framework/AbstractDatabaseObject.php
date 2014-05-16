@@ -5,7 +5,7 @@
  * (tuttavia ancora astratta) dell'interfaccia DatabaseObject.
  *
  * @author Maurizio Cingolani
- * @version 1.0.7
+ * @version 1.0.8
  */
 abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseObject {
 
@@ -115,7 +115,7 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
      * @param type $onlyEnabled True per restituire solo i record abilitati (Enabled=1)
      * @return mixed Array di record oppure eccezione
      */
-    protected static function SimpleGetAll(CActiveRecord $model, $order = '', $onlyEnabled = true) {
+    protected static function SimpleGetAll(CActiveRecord $model, $order = '', $onlyEnabled = false) {
         try {
             $criteria = new CDbCriteria;
             if (strlen($order) > 0)

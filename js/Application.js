@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.15
+ * @version 1.0.16
  */
 
 /**
@@ -258,12 +258,20 @@ var Field = function(form, field, validateOnChange) {
         }, this));
     }
     if (this.field.attr('data-sn-editor')) {
-        this.sn = this.field.summernote(form.options.sn || null);
+        var opts = form.options == undefined ? {} : (form.options.sn || {});
+        if (validateOnChange) {
+            opts.onblur = $.proxy(function() {
+                this.setErrorStatus(this.validate());
+            }, this);
+        }
+        this.sn = this.field.summernote(opts);
     }
     if (validateOnChange) {
-        field.on('change', $.proxy(function() {
-            this.setErrorStatus(this.validate());
-        }, this));
+        if (!this.field.attr('data-sn-editor')) {
+            field.on('change', $.proxy(function() {
+                this.setErrorStatus(this.validate());
+            }, this));
+        }
     }
 }
 
@@ -352,6 +360,8 @@ Field.prototype.setErrorStatus = function(message) {
 Field.prototype.getValue = function() {
     if (this.field.attr('type') == 'checkbox') {
         return this.field.is(':checked') ? 1 : 0;
+    } else if (this.field.attr('data-sn-editor')) {
+        return this.field.code() != '<p><br></p>' ? this.field.code() : '';
     } else {
         return this.field.val();
     }
