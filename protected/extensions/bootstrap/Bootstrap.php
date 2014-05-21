@@ -2,7 +2,7 @@
 
 /**
  * @author Maurizio Cingolani
- * @version 1.0.10
+ * @version 1.0.11
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -102,6 +102,50 @@ class Bootstrap extends CApplicationComponent {
      */
     public static function DateField(CModel $model, $attribute, array $htmlOptions = null) {
         return self::InputField('text', $model, $attribute, $htmlOptions);
+    }
+
+    /**
+     * Crea una div per il drag and drop di files (classe 'document_dnd_handler') con tre componenti interni:
+     * <ul>
+     * <li>span (id '{nome modello}_{nome attributo}_span') : contiene il testo 'Trascina qui' (configurabile tramite
+     *   l'opzione 'dropMessage'). Visibile sono se non è stato droppato il file.</li>
+     * <li>label (id '{nome modello}_{nome attributo}_label') : file droppato con percorso a partirte da /assets/files.</li>
+     * <li>pulsanti: pulizia del documento (id '{nome modello}_{nome attributo}_clear') e caricamento del file tramite
+     * finestra di scelta (classe 'btn-file'). I testi dei pulsanti possono essere impostati con le opzioni 'clearMessage' e
+     * 'browseMessage', mentre i loro popup con 'clearPopup' e 'browsePopup'. 
+     * </ul>
+     * 
+     * @param CModel $model Modello della form
+     * @param type $attribute Attributo del modello della form
+     * @param array $htmlOptions Opzioni del tag html principale
+     * @param array $options Opzioni del controllo
+     * @return string Tag html
+     */
+    public static function DocumentDiv(CModel $model, $attribute, array $htmlOptions = null, array $options = array()) {
+        $tag = Html::openTag('div', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
+                    'class' => 'document_dnd_handler form-control-static',
+                    'data-document-dnd' => 'true',
+        ));
+        $tag.=Html::tag('span', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_span',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'none' : 'block') . ';',
+                        ), isset($options['dropMessage']) ? $options['dropMessage'] : 'Trascina qui');
+        $tag.=Html::tag('label', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_label',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';',
+                        ), $model->{$attribute}, true);
+        $tag.=Html::openTag('p');
+        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
+        $tag.=self::Button('button', isset($options['clearText']) ? $options['clearText'] : 'Pulisci', array(
+                    'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
+                    'data-toggle' => 'tooltip',
+                    'title' => isset($options['clearPopup']) ? $options['clearPopup'] : 'Clicca per rimuovere il documento attuale',
+                    'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';'
+                        ), array('danger', 'xs'));
+        $tag.=Html::closeTag('p');
+        $tag.=Html::closeTag('div');
+        return Html::decode($tag);
     }
 
     /**
@@ -205,7 +249,8 @@ class Bootstrap extends CApplicationComponent {
      * <li>img (id '{nome modello}_{nome attributo}_img') : immagine droppata. Gli attributi 'class' e 'alt' sono
      * configurabili tramite le opzioni 'imgClass' e 'imgAlt'.</li>
      * <li>pulsanti: pulizia della foto (id '{nome modello}_{nome attributo}_clear') e caricamento del file tramite
-     * finestra di scelta (classe 'btn-file').
+     * finestra di scelta (classe 'btn-file'). I testi dei pulsanti possono essere impostati con le opzioni 'clearText' e
+     * 'browseText', mentre i loro popup con 'clearPopup' e 'browsePopup'. 
      * </ul>
      * 
      * @param CModel $model Modello della form
@@ -218,7 +263,7 @@ class Bootstrap extends CApplicationComponent {
         $tag = Html::openTag('div', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ),
                     'class' => 'picture_dnd_handler form-control-static',
-                    'data-picure-dnd' => 'true',
+                    'data-picture-dnd' => 'true',
         ));
         $tag.=Html::tag('span', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_span',
@@ -232,11 +277,11 @@ class Bootstrap extends CApplicationComponent {
                     'src' => $model->{$attribute},
         ));
         $tag.=Html::openTag('p');
-        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), 'Scegli... <input type="file">');
-        $tag.=self::Button('button', 'Pulisci', array(
+        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
+        $tag.=self::Button('button', isset($options['clearText']) ? $options['clearText'] : 'Pulisci', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
                     'data-toggle' => 'tooltip',
-                    'title' => 'Clicca per rimuovere la foto attuale',
+                    'title' => isset($options['clearPopup']) ? $options['clearPopup'] : 'Clicca per rimuovere la foto attuale',
                     'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';'
                         ), array('danger', 'xs'));
         $tag.=Html::closeTag('p');

@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.16
+ * @version 1.0.17
  */
 
 /**
@@ -583,11 +583,14 @@ var PictureDragAndDropHandler = function(div, controller, action, params) {
     this.params = params;
     // componenti
     this.span = $('#' + div.attr('id') + '_span');
+    this.label = $('#' + div.attr('id') + '_label');
     this.img = $('#' + div.attr('id') + '_img');
     this.clear = $('#' + div.attr('id') + '_clear');
     this.clear.click($.proxy(function() {
         this.img.attr('src', null);
         this.img.hide();
+        this.label.html(null);
+        this.label.hide();
         this.span.show();
         this.clear.hide();
     }, this));
@@ -635,7 +638,7 @@ PictureDragAndDropHandler.prototype.transfer = function(file) {
     fd.append('file', file);
     if (this.params.path)
         fd.append('path', this.params.path);
-    ModalDialog.show('<div id="progressbar"></div>', this.params.dialogMessage ? this.params.dialogMessage : 'Caricamento immagine');
+    ModalDialog.show('<div id="progressbar"></div>', this.params.dialogMessage ? this.params.dialogMessage : 'Caricamento file');
     if (this.params.beforeTransferStart)
         this.params.beforeTransferStart();
     var progressBar = $('#progressbar');
@@ -663,8 +666,14 @@ PictureDragAndDropHandler.prototype.transfer = function(file) {
         data: fd,
         dataType: 'json',
         success: $.proxy(function(json) {
-            this.img.attr('src', json.data);
-            this.img.show();
+            if (this.img) {
+                this.img.attr('src', json.data);
+                this.img.show();
+            }
+            if(this.label) {
+                this.label.text(json.data);
+                this.label.show();
+            }
             this.span.hide();
             this.clear.show();
             ModalDialog.hide();
@@ -684,6 +693,13 @@ PictureDragAndDropHandler.prototype.transfer = function(file) {
  */
 PictureDragAndDropHandler.prototype.getImgPath = function() {
     return this.img.attr('src');
+}
+/**
+ * Restituisce il contenuto della label con il percorso del file droppato.
+ * @returns {string} Percorso completo del file.
+ */
+PictureDragAndDropHandler.prototype.getFilePath = function() {
+    return this.label.text();
 }
 
 /* Metodi per le stringhe */
