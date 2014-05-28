@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.17
+ * @version 1.0.18
  */
 
 /**
@@ -307,27 +307,31 @@ Field.prototype.validate = function(value) {
             return this.maxMessage || this.field.attr('data-invalid-message');
     }
     if (this.compare) {
+        var compare;
         if (this.date) {
             value = this.field.datepicker('getDate');//valore del campo
-            if (value) {
-                var compare = this.form.getField(this.compare).field.datepicker('getDate');//valore del campo di confronto
-                switch (this.compareOperator) {
-                    case '=':
-                    case '==':
-                        return value == compare ? true : this.compareMessage;
-                    case '!=':
-                        return value != compare ? true : this.compareMessage;
-                    case '>':
-                        return value > compare ? true : this.compareMessage;
-                    case '>=':
-                        return value >= compare ? true : this.compareMessage;
-                    case '<':
-                        return value < compare ? true : this.compareMessage;
-                    case '<=':
-                        return value <= compare ? true : this.compareMessage;
-                }
-                return this.compareMessage;
+            compare = this.form.getField(this.compare).field.datepicker('getDate');//valore del campo di confronto
+        } else if (this.number) {
+            compare = this.number == 'int' ? parseInt(this.form.getFieldValue(this.compare), 10) : parseFloat(this.form.getFieldValue(this.compare));//valore del campo di confronto
+        }
+        if (value) {
+            console.log(value, compare);
+            switch (this.compareOperator) {
+                case '=':
+                case '==':
+                    return value == compare ? true : this.compareMessage;
+                case '!=':
+                    return value != compare ? true : this.compareMessage;
+                case '>':
+                    return value > compare ? true : this.compareMessage;
+                case '>=':
+                    return value >= compare ? true : this.compareMessage;
+                case '<':
+                    return value < compare ? true : this.compareMessage;
+                case '<=':
+                    return value <= compare ? true : this.compareMessage;
             }
+            return this.compareMessage;
         }
         return true;
     }
@@ -670,7 +674,7 @@ PictureDragAndDropHandler.prototype.transfer = function(file) {
                 this.img.attr('src', json.data);
                 this.img.show();
             }
-            if(this.label) {
+            if (this.label) {
                 this.label.text(json.data);
                 this.label.show();
             }
