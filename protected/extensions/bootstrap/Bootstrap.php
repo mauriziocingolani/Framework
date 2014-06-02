@@ -2,7 +2,7 @@
 
 /**
  * @author Maurizio Cingolani
- * @version 1.0.11
+ * @version 1.0.12
  */
 class Bootstrap extends CApplicationComponent {
 
@@ -136,7 +136,7 @@ class Bootstrap extends CApplicationComponent {
                     'style' => 'display: ' . (isset($model->{$attribute}) ? 'block' : 'none') . ';',
                         ), $model->{$attribute}, true);
         $tag.=Html::openTag('p');
-        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
+        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-default btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
         $tag.=self::Button('button', isset($options['clearText']) ? $options['clearText'] : 'Pulisci', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
                     'data-toggle' => 'tooltip',
@@ -277,7 +277,7 @@ class Bootstrap extends CApplicationComponent {
                     'src' => $model->{$attribute},
         ));
         $tag.=Html::openTag('p');
-        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-primary btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
+        $tag.=Html::tag('span', array('class' => 'btn btn-xs btn-default btn-file'), (isset($options['browseText']) ? $options['browseText'] : 'Scegli') . '... <input type="file">');
         $tag.=self::Button('button', isset($options['clearText']) ? $options['clearText'] : 'Pulisci', array(
                     'id' => get_class($model) . ($attribute ? '_' . $attribute : '' ) . '_clear',
                     'data-toggle' => 'tooltip',

@@ -2,7 +2,7 @@
  * Application.js
  * 
  * Contiene tutto il codice del framework.
- * @version 1.0.18
+ * @version 1.0.19
  */
 
 /**
@@ -315,7 +315,6 @@ Field.prototype.validate = function(value) {
             compare = this.number == 'int' ? parseInt(this.form.getFieldValue(this.compare), 10) : parseFloat(this.form.getFieldValue(this.compare));//valore del campo di confronto
         }
         if (value) {
-            console.log(value, compare);
             switch (this.compareOperator) {
                 case '=':
                 case '==':
