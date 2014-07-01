@@ -5,7 +5,7 @@
  * Espone metodi per la gestione dei files css, dei files js e dei breadcrumbs.
  *
  * @author Maurizio Cingolani
- * @version 1.0.7
+ * @version 1.0.8
  */
 class Controller extends CController {
 
@@ -37,6 +37,8 @@ class Controller extends CController {
      * Yii::app()->session['languageIndex'].
      * Se la richiesta non è una POST e il linguaggio non è ancora stato selezionato, allora imposta
      * il linguaggio di default, assegnato a Yii::app()->params['defaultLanguage'].
+     * Inoltre viene verificato che l'url attuale sia nella lingua giusta, e in caso contrario viene fatto
+     * il redirect (vedere {@link UrlManager per dettagli}).
      * 
      * @param string $action Azione
      * @return boolean True 
@@ -53,6 +55,14 @@ class Controller extends CController {
                     Yii::app()->session['language'] = Yii::app()->params['defaultLanguage'];
                     Yii::app()->session['languageIndex'] = $this->_getLanguageIndex();
                 endif;
+            endif;
+            //Verifica linguaggio
+            if (method_exists(Yii::app()->urlManager, 'checkRouteAgainstLanguages')) :
+                $route = $this->id . '/' . $this->action->id;
+                $url = substr(Yii::app()->request->url, 1);
+                $url2 = Yii::app()->urlManager->checkRouteAgainstLanguages($route, $url);
+                if ($url != $url2)
+                    $this->redirect(array("/$url2"));
             endif;
             return true;
         endif;
