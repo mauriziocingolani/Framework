@@ -4,9 +4,22 @@
  * Estende la classe CHtml con alcuni metodi di utilità.
  *
  * @author Maurizio Cingolani
- * @version 1.0.2
+ * @version 1.0.3
  */
 class Html extends CHtml {
+
+    /**
+     * Genera un tag img con l'immagine richiesta. Il percorso dell'immagine
+     * è quello definito nel parametro 'imagesPath' all'interno
+     * del file di configurazione.
+     * @param string $src None dell'immagine
+     * @param string $alt Testo alternativo
+     * @param array $htmlOptions Altri attributi html
+     * @return string Tag img
+     */
+    public static function image($src, $alt = '', $htmlOptions = array()) {
+        return parent::image(Yii::app()->params['imagesPath'] . $src, $alt, $htmlOptions);
+    }
 
     /**
      * Questo metodo, che riceve come argomenti i messaggi nelle varie lingue, permette di sceglierne uno
