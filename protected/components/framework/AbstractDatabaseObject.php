@@ -5,7 +5,7 @@
  * (tuttavia ancora astratta) dell'interfaccia DatabaseObject.
  *
  * @author Maurizio Cingolani
- * @version 1.0.8
+ * @version 1.0.9
  */
 abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseObject {
 
@@ -24,14 +24,16 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
     public $UpdatedBy;
 
     protected function beforeSave() {
-        if ($this->isNewRecord) :
-            $this->Created = date('Y-m-d H:i:s ');
-            $this->CreatedBy = Yii::app()->user->id;
-        else :
-            $this->Created = date('Y-m-d H:i:s ');
-            $this->UpdatedBy = Yii::app()->user->id;
+        if (parent::beforeSave()) :
+            if ($this->isNewRecord) :
+                $this->Created = date('Y-m-d H:i:s ');
+                $this->CreatedBy = Yii::app()->user->id;
+            else :
+                $this->Created = date('Y-m-d H:i:s ');
+                $this->UpdatedBy = Yii::app()->user->id;
+            endif;
+            return true;
         endif;
-        return true;
     }
 
     /**
