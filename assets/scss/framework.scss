@@ -1,5 +1,5 @@
 /* CSS framework
-@version 1.0.1 */
+@version 1.0.3 */
 
 /* body */
 body {
@@ -68,4 +68,27 @@ blockquote.server_error {
     background: white;
     cursor: inherit;
     display: block;
+}
+
+/* Form */
+div.form-error,div.form-message {
+    display: none;
+    font-size: 0.8em;
+    margin-top: 0.5em;
+    padding: 5px;
+}
+div.form-message {
+    margin-top: 1.5em;
+}
+.has-feedback .form-control.currency {
+    padding-left: 32.5px;
+    padding-right: 0;
+}
+.has-feedback .form-control-feedback.currency {
+    left: 0;
+}
+.security {
+    position: fixed;
+    top:-100000;
+    left: -100000;
 }
