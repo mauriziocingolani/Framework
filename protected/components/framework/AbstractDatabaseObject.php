@@ -5,7 +5,7 @@
  * (tuttavia ancora astratta) dell'interfaccia DatabaseObject.
  *
  * @author Maurizio Cingolani
- * @version 1.0.9
+ * @version 1.0.10
  */
 abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseObject {
 
@@ -23,6 +23,22 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
     /** Ultimo utente che ha modificato il record */
     public $UpdatedBy;
 
+    /**
+     * Utilizzando i valori contenuti nei campi Created e Updated (se presenti)
+     * imposta le proprietà _Created e _Updated con i corrispondenti timestamp.
+     */
+    protected function afterFind() {
+        parent::afterFind();
+        if ($this->Created)
+            $this->_Created = strtotime($this->Created);
+        if ($this->Updated)
+            $this->_Updated = strtotime($this->Updated);
+    }
+
+    /**
+     * Imposta i campi Created/CreatedBy e Updated/UpdatedBy prima del salvataggio.
+     * @return boolean True
+     */
     protected function beforeSave() {
         if (parent::beforeSave()) :
             if ($this->isNewRecord) :
@@ -34,6 +50,22 @@ abstract class AbstractDatabaseObject extends CActiveRecord implements DatabaseO
             endif;
             return true;
         endif;
+    }
+
+    /**
+     * Restituisce una stringa con le informazioni su data e utente responsabile
+     * della creazione ed eventualmente della modifica del record. Presuppone che
+     * nel modello siano definite le relazioni 'Creator' e 'Updater'.
+     * Se richiesto viene visualizzata anche la chiave primaria.
+     * @param type $showId True per mostrare l'ID primario
+     * @return string Informazioni di creazione  modifica
+     */
+    public function getCreatedUpdatedString($showId = false) {
+        return 'Creazione : ' . date('d-m-Y', $this->_Created) . ' alle ore ' . date('H:i', $this->_Created) .
+                ($this->Creator ? ' da parte di <span style="text-decoration: underline;">' . $this->Creator->UserName . '</span>' : '') .
+                ($this->_Updated ? '<br />Ultima modifica : ' . date('d-m-Y', $this->_Updated) . ' alle ore ' . date('H:i', $this->_Updated) .
+                        ($this->Updater ? ' da parte di <span style="text-decoration: underline;">' . $this->Updater->UserName . '</span>' : '') : '') .
+                ($showId ? '<br />' . $this->model()->tableSchema->primaryKey . ": $this->primaryKey" : '');
     }
 
     /**
