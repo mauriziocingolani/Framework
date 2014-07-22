@@ -5,7 +5,7 @@
  * Espone metodi per la gestione dei files css, dei files js e dei breadcrumbs.
  *
  * @author Maurizio Cingolani
- * @version 1.0.8
+ * @version 1.0.9
  */
 class Controller extends CController {
 
@@ -190,7 +190,13 @@ class Controller extends CController {
 
     /**
      * Popola la variabile $_js con il nome (o i nomi se l'argomento è un array) dei files js da caricare.
-     * I nomi devono contenere l'eventuale percorso all'interno della cartella /js.
+     * I nomi possono essere di due tipi:
+     * <ul>
+     *      <li>Files locali (es. framework/Application.js): iniziano con una lettera e contengono
+     *              il percorso all'interno della cartella /js</li>
+     *      <li>Files remoti (es. http://code.jquery.com/jquery-1.11.0.min.js): iniziano con '//' (protocollo http) oppure
+     *              con 'https://'.</li> 
+     * </ul>
      * Restituisce l'istanza attuale del Controller in modo da consentire il concatenamento.
      * 
      * @param mixed $js Nome (o nomi se si tratta di un array) dei files js da caricare.
@@ -212,7 +218,7 @@ class Controller extends CController {
      * in cui il tag <script> verrà inserito (normalmente CClientScript::POS_HEAD oppure CClientScript::END).
      * Quindi Inserisce alla fine del <body> gli script js assegnati alla proprietà $_js
      * per le singole pagine.
-     * 
+     * Per la convenzione sui nomi dei files (locali o remoti) si veda il metodo {@link addJs}.
      */
     protected function js() {
         $cs = Yii::app()->getClientScript();
@@ -223,7 +229,7 @@ class Controller extends CController {
             endforeach;
         endif;
         foreach ($this->_js as $js) :
-            $cs->registerScriptFile(substr($file, 0, 2) == '//' || substr($file, 0, 8) == 'https://' ? $file : "/js/$js.js", CClientScript::POS_END);
+            $cs->registerScriptFile(substr($js, 0, 2) == '//' || substr($js, 0, 8) == 'https://' ? $js : "/js/$js.js", CClientScript::POS_END);
         endforeach;
     }
 
