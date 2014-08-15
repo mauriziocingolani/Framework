@@ -5,7 +5,7 @@
  * Espone metodi per la gestione dei files css, dei files js e dei breadcrumbs.
  *
  * @author Maurizio Cingolani
- * @version 1.0.9
+ * @version 1.0.10
  */
 class Controller extends CController {
 
@@ -250,6 +250,52 @@ class Controller extends CController {
      */
     public function getBreadcrumbs() {
         return $this->_breadcrumbs;
+    }
+
+    /**
+     * Gestisce il caricamento di un'immagine sul server. 
+     * Il percorso in cui verrà salvata l'iimagine caricata è composto da due parametri:
+     * <ul>
+     * <li>Yii::app()->params['imagesPath']: percorso base della cartella /images</li>
+     * <li>$_POST['path']: percorso all'interno della cartella /images</li>
+     * </ul>
+     * Il percorso relativo della cartella viene restituito nella proprietà $data dell'oggetto
+     * {@link AjaxReturnObject}, in modo da essere usato per l'attributo scr delle immagini.
+     * @throws CException Se non è impostato il parametro Yii::app()->params['imagesPath'].
+     */
+    public function actionUploadPicture() {
+        if (!isset(Yii::app()->params['imagesPath']))
+            throw new CException('Il parametro \'imagesPath\' non è settato.');
+        $return = new AjaxReturnObject;
+        if (isset($_FILES['file'])) :
+            $path = (isset($_POST['path']) ? $_POST['path'] : '') . '/' . $_FILES['file']['name'];
+            move_uploaded_file($_FILES['file']['tmp_name'], Yii::app()->params['imagesPath'] . $path);
+            $return->data = '/images' . $path;
+        endif;
+        echo json_encode($return);
+    }
+
+    /**
+     * Gestisce il caricamento di un file sul server. 
+     * Il percorso in cui verrà salvato il file caricato è composto da due parametri:
+     * <ul>
+     * <li>Yii::app()->params['filesPath']: percorso base della cartella /assets/files</li>
+     * <li>$_POST['path']: percorso all'interno della cartella /assets/files</li>
+     * </ul>
+     * Il percorso relativo della cartella viene restituito nella proprietà $data dell'oggetto
+     * {@link AjaxReturnObject}, in modo da essere usato per i link al file.
+     * @throws CException Se non è impostato il parametro Yii::app()->params['filesPath'].
+     */
+    public function actionUploadFile() {
+        if (!isset(Yii::app()->params['imagesPath']))
+            throw new CException('Il parametro \'filesPath\' non è settato.');
+        $return = new AjaxReturnObject;
+        if (isset($_FILES['file'])) :
+            $path = (isset($_POST['path']) ? $_POST['path'] : '') . '/' . $_FILES['file']['name'];
+            move_uploaded_file($_FILES['file']['tmp_name'], Yii::app()->params['filesPath'] . $path);
+            $return->data = '/assets/files' . $path;
+        endif;
+        echo json_encode($return);
     }
 
 }
